@@ -25,4 +25,3 @@ This project is licensed under the [MIT License](LICENSE), so feel free to use, 
 
 We hope you enjoy playing our Python chess game! If you have any questions or feedback, don't hesitate to reach out. Happy gaming!
 
-Feel free to copy and paste this Markdown code into a README.md file in your repository's root directory. You can further customize it to add specific details about your game's implementation and features.
