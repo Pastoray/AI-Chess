@@ -26,3 +26,5 @@ CAPTURE_PIECE_SOUND = "./assets/sounds/capture_piece.wav"
 
 FONT_PATH = "./assets/fonts/PressStart2P-Regular.ttf"
 FONT_SIZE = 24
+
+LOGO_PATH = "./assets/images/Chess_qlt45.svg"

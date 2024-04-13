@@ -9,6 +9,10 @@ pg.mixer.init()
 
 screen = pg.display.set_mode((WIDTH, HEIGHT))
 pg.display.set_caption("Chess")
+
+logo = pg.image.load(LOGO_PATH)
+pg.display.set_icon(logo)
+
 clock = pg.time.Clock()
 
 font = pg.font.Font(FONT_PATH, FONT_SIZE)
