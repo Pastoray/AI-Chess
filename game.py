@@ -7,7 +7,7 @@ class ChessBoard:
     def __init__(self, turn, tile):
         self.turn = turn
         self.tile = tile
-        self.board = self.init_board() 
+        self.board = self.init_board()
         self.white_king, self.black_king = self.init_kings()
         self.valid_white_moves, self.valid_black_moves = {}, {}
         self.invalid_white_king_moves, self.invalid_black_king_moves = [], []
@@ -100,6 +100,7 @@ class ChessBoard:
         new_x, new_y = new_pos
         if self.board[new_y][new_x]:
             self.moves_with_no_capturing = 0
+            self.positions[tuple(tuple(row) for row in self.board)] = 1
         else:
             self.moves_with_no_capturing += 1
         if self.moves_with_no_capturing == 50:
@@ -246,6 +247,8 @@ class ChessBoard:
             self.play_sound(new_pos)
             self.castle(curr_pos, new_pos)
 
+            self.fifty_move_rule(new_pos)
+            
             self.board[new_y][new_x] = self.get_piece(x, y)
             self.board[y][x] = None
 
