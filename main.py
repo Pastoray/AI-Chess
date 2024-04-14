@@ -17,6 +17,38 @@ clock = pg.time.Clock()
 
 font = pg.font.Font(FONT_PATH, FONT_SIZE)
 chessboard = ChessBoard(WHITE, TILE)
+selected_piece_pos = None
+change = True
+
+def draw():
+    screen.fill(WHITE)
+    tiles = chessboard.create()
+    for tile in tiles:
+        c, tup = tile
+        pg.draw.rect(screen, c, tup)
+    
+    if selected_piece_pos:
+        px, py = selected_piece_pos
+        pg.draw.rect(screen, YELLOW, (px * TILE, py * TILE, TILE, TILE))
+        for x, y, p in chessboard.get_piece(px, py).idk(selected_piece_pos):
+            if p == 0:
+                pg.draw.circle(screen, GRAY, (x * TILE + 10 + 15, y * TILE + 10 + 15), 8)
+            elif p == 1:
+                pg.draw.rect(screen, RED, (x * TILE, y * TILE, TILE, TILE))
+            elif p == -1:
+                pass
+    draw_pieces()
+
+    if chessboard.white_pawn_promoted:
+        draw_promotion_options(WHITE)
+
+    if chessboard.black_pawn_promoted:
+        draw_promotion_options(BLACK)
+
+    if chessboard.get_winner() != False:
+        determine_winner()
+
+    pg.display.update()
 
 def draw_pieces():
     for i in range(len(chessboard.board)):
@@ -70,27 +102,11 @@ def promote_pawn(color):
                 chessboard.play_sound((y2, x2))
             pg.mouse.set_cursor(pg.SYSTEM_CURSOR_ARROW)
             chessboard.valid_black_moves[(x2, y2)] = chessboard.get_piece(x2, y2).get_valid_moves((x2, y2))
-            for x, y, p in chessboard.valid_black_moves[(x2, y2)]:
+            for x, y, _ in chessboard.valid_black_moves[(x2, y2)]:
                 chessboard.invalid_white_king_moves.append((x, y))
             x, y = chessboard.white_king
             chessboard.valid_white_moves[(x, y)] = chessboard.get_piece(x, y).get_valid_moves((x, y))
-            for i in range(len(chessboard.board)):
-                for j in range(len(chessboard.board[i])):
-                    if chessboard.get_piece(j, i) and chessboard.get_piece(j, i).color == WHITE:
-                        if chessboard.get_piece(j, i).name() != KING:
-                            chessboard.valid_white_moves[(j, i)] = chessboard.valid_blocking_moves((i, j), WHITE)
-                        else:
-                            chessboard.valid_white_moves[(j, i)] = []
-                            piece_movements = chessboard.get_piece(j, i).get_valid_moves((j, i))
-                            for x, y, p in piece_movements:
-                                if p != -1:
-                                    chessboard.valid_white_moves[(j, i)].append((x, y, p))
-
-            if len(max(chessboard.valid_black_moves.values(), key=len)) == 0:
-                if chessboard.white_king not in chessboard.invalid_white_king_moves:
-                    chessboard.winner = None
-                else:
-                    chessboard.winner = WHITE
+            chessboard.calculate_valid_moves(WHITE)
 
     elif color == WHITE:
         x2, y2 = chessboard.white_pawn_promoted
@@ -116,23 +132,7 @@ def promote_pawn(color):
                 chessboard.invalid_black_king_moves.append((x, y))
             x, y = chessboard.black_king
             chessboard.valid_black_moves[(x, y)] = chessboard.get_piece(x, y).get_valid_moves((x, y))
-            for i in range(len(chessboard.board)):
-                for j in range(len(chessboard.board[i])):
-                    if chessboard.get_piece(j, i) and chessboard.get_piece(j, i).color == BLACK:
-                        if chessboard.get_piece(j, i).name() != KING:
-                            chessboard.valid_black_moves[(j, i)] = chessboard.valid_blocking_moves((i, j), BLACK)
-                        else:
-                            chessboard.valid_black_moves[(j, i)] = []
-                            piece_movements = chessboard.get_piece(j, i).get_valid_moves((j, i))
-                            for x, y, p in piece_movements:
-                                if p != -1:
-                                    chessboard.valid_black_moves[(j, i)].append((x, y, p))
-
-            if len(max(chessboard.valid_black_moves.values(), key=len)) == 0:
-                if chessboard.black_king not in chessboard.invalid_black_king_moves:
-                    chessboard.winner = None
-                else:
-                    chessboard.winner = WHITE
+            chessboard.calculate_valid_moves(WHITE)
             pg.mouse.set_cursor(pg.SYSTEM_CURSOR_ARROW)
 
 
@@ -178,7 +178,7 @@ def draw_promotion_options(color):
                 pg.mouse.set_cursor(pg.SYSTEM_CURSOR_ARROW)
 
 def main():
-    selected_piece_pos = None
+    global selected_piece_pos, change
     running = True
     while running:
         for event in pg.event.get():
@@ -191,48 +191,25 @@ def main():
                     y = mouse_pos[1] // TILE
                     if chessboard.black_pawn_promoted:
                         promote_pawn(BLACK)
+                        change = True
 
                     elif chessboard.white_pawn_promoted:
-                       promote_pawn(WHITE)
+                        promote_pawn(WHITE)
+                        change = True
 
                     else:
                         if selected_piece_pos:
                             new_pos = (x, y)
                             chessboard.move_piece(selected_piece_pos, new_pos)
                             selected_piece_pos = None
+                            change = True
                         else:
                             if chessboard.get_piece(x, y) != None:
                                 selected_piece_pos = (x, y)
-
-        screen.fill(WHITE)
-        tiles = chessboard.create()
-        for tile in tiles:
-            c, tup = tile
-            pg.draw.rect(screen, c, tup)
-        
-        if selected_piece_pos:
-            px, py = selected_piece_pos
-            pg.draw.rect(screen, YELLOW, (px * TILE, py * TILE, TILE, TILE))
-            for x, y, p in chessboard.get_piece(px, py).idk(selected_piece_pos):
-                if p == 0:
-                    pg.draw.circle(screen, GRAY, (x * TILE + 10 + 15, y * TILE + 10 + 15), 8)
-                elif p == 1:
-                    pg.draw.rect(screen, RED, (x * TILE, y * TILE, TILE, TILE))
-                elif p == -1:
-                    pass
-
-        draw_pieces()
-
-        if chessboard.white_pawn_promoted:
-            draw_promotion_options(WHITE)
-
-        if chessboard.black_pawn_promoted:
-            draw_promotion_options(BLACK)
-
-        if chessboard.get_winner() != False:
-            determine_winner()
-
-        pg.display.update()
+                                change = True
+        if change:
+            draw()
+            change = False
         clock.tick(FPS)
 
     pg.quit()
