@@ -361,13 +361,13 @@ class Piece:
         self.color = color
 
     def is_valid_move(self, curr_pos, new_pos):      
-        valid_moves = self.idk(curr_pos)
+        valid_moves = self.get_cached_valid_moves(curr_pos)
         for x, y, _ in valid_moves:
             if new_pos == (x, y):
                 return True
         return False
     
-    def idk(self, pos):
+    def get_cached_valid_moves(self, pos):
         if self.color == WHITE and len(self.chessboard.valid_white_moves) != 0:
             return self.chessboard.valid_white_moves[pos]
         elif self.color == BLACK and len(self.chessboard.valid_black_moves) != 0:
@@ -389,7 +389,7 @@ class Pawn(Piece):
         super().__init__(color, board)
         self.has_moved = False
     def is_valid_move(self, curr_pos, new_pos):
-        valid_moves = self.idk(curr_pos)
+        valid_moves = self.get_cached_valid_moves(curr_pos)
         for x, y, _ in valid_moves:
             if new_pos == (x, y):
                 if not self.has_moved:
@@ -463,7 +463,7 @@ class Rook(Piece):
         self.has_moved = False
 
     def is_valid_move(self, curr_pos, new_pos):
-        valid_moves = self.idk(curr_pos)
+        valid_moves = self.get_cached_valid_moves(curr_pos)
         for x, y, _ in valid_moves:
             if new_pos == (x, y):
                 if not self.has_moved:
@@ -556,7 +556,7 @@ class King(Piece):
         self.has_moved = False
 
     def is_valid_move(self, curr_pos, new_pos):
-        valid_moves = self.idk(curr_pos)
+        valid_moves = self.get_cached_valid_moves(curr_pos)
         for x, y, _ in valid_moves:
             if new_pos == (x, y):
                 if not self.has_moved:

@@ -30,7 +30,7 @@ def draw():
     if selected_piece_pos:
         px, py = selected_piece_pos
         pg.draw.rect(screen, YELLOW, (px * TILE, py * TILE, TILE, TILE))
-        for x, y, p in chessboard.get_piece(px, py).idk(selected_piece_pos):
+        for x, y, p in chessboard.get_piece(px, py).get_cached_valid_moves(selected_piece_pos):
             if p == 0:
                 pg.draw.circle(screen, GRAY, (x * TILE + 10 + 15, y * TILE + 10 + 15), 8)
             elif p == 1:
