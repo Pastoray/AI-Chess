@@ -57,13 +57,13 @@ class ChessBoard:
             for j in range(len(self.board[i])):
                 if (self.board[i][j] and
                     self.board[i][j].name() == KING and
-                    self.board[i][j].color == BLACK):
+                    self.board[i][j].color() == BLACK):
                     
                     black_king = (j, i)
 
                 elif (self.board[i][j] and
                     self.board[i][j].name() == KING and
-                    self.board[i][j].color == WHITE):
+                    self.board[i][j].color() == WHITE):
 
                     white_king = (j, i)
         return [white_king, black_king]
@@ -94,9 +94,9 @@ class ChessBoard:
         x, y = curr_pos
         new_x, new_y = new_pos
     
-        if (self.at(x, y).color == self.turn and
+        if (self.at(x, y).color() == self.turn and
             (self.at(new_x, new_y) == None or
-            self.at(x, y).color != self.at(new_x, new_y).color) and
+            self.at(x, y).color() != self.at(new_x, new_y).color()) and
             self.at(x, y).is_valid_move(curr_pos, new_pos)):
 
             return True
@@ -105,7 +105,7 @@ class ChessBoard:
     def castle(self, curr_pos, new_pos):
         x, y = curr_pos
         new_x, new_y = new_pos
-        if self.at(x, y).name() == KING and self.at(x, y).color == WHITE:
+        if self.at(x, y).name() == KING and self.at(x, y).color() == WHITE:
             if x - new_x == 2:
                 self.board[y][0] = None
                 self.board[y][new_x + 1] = Rook(WHITE, self)
@@ -113,7 +113,7 @@ class ChessBoard:
                 self.board[y][len(self.board) - 1] = None
                 self.board[y][new_x - 1] = Rook(WHITE, self)
             self.white_king = (new_x, new_y)
-        elif self.at(x, y).name() == KING and self.at(x, y).color == BLACK:
+        elif self.at(x, y).name() == KING and self.at(x, y).color() == BLACK:
             if x - new_x == 2:
                 self.board[y][0] = None
                 self.board[y][new_x + 1] = Rook(BLACK, self)
@@ -141,7 +141,7 @@ class ChessBoard:
         if not color:
             for i in range(len(self.board)):
                 for j in range(len(self.board[i])):
-                    if self.at(j, i) and self.at(j, i).color == BLACK:
+                    if self.at(j, i) and self.at(j, i).color() == BLACK:
                         piece = self.at(j, i)
                         movements = []
                         if piece.name() == PAWN:
@@ -153,7 +153,7 @@ class ChessBoard:
                             movements = piece.get_valid_moves((j, i))
                         for x, y, _ in movements:
                             self.invalid_white_king_moves.append((x, y))
-                    elif self.at(j, i) and self.at(j, i).color == WHITE:
+                    elif self.at(j, i) and self.at(j, i).color() == WHITE:
                         piece = self.at(j, i)
                         movements = []
                         if piece.name() == PAWN:
@@ -168,7 +168,7 @@ class ChessBoard:
         elif color == WHITE:
             for i in range(len(self.board)):
                 for j in range(len(self.board[i])):
-                    if self.at(j, i) and self.at(j, i).color == BLACK:
+                    if self.at(j, i) and self.at(j, i).color() == BLACK:
                         piece = self.at(j, i)
                         movements = []
                         if piece.name() == PAWN:
@@ -183,7 +183,7 @@ class ChessBoard:
         elif color == BLACK:
             for i in range(len(self.board)):
                 for j in range(len(self.board[i])):
-                    if self.at(j, i) and self.at(j, i).color == WHITE:
+                    if self.at(j, i) and self.at(j, i).color() == WHITE:
                         piece = self.at(j, i)
                         movements = []
                         if piece.name() == PAWN:
@@ -200,7 +200,7 @@ class ChessBoard:
         if color == None:
             for i in range(len(self.board)):
                 for j in range(len(self.board[i])):
-                    if self.at(j, i) and self.at(j, i).color == WHITE:
+                    if self.at(j, i) and self.at(j, i).color() == WHITE:
                         if self.at(j, i).name() != KING:
                             self.valid_white_moves[(j, i)] = self.valid_blocking_moves((i, j), WHITE)
                         else:
@@ -213,7 +213,7 @@ class ChessBoard:
 
             for i in range(len(self.board)):
                 for j in range(len(self.board[i])):
-                    if self.at(j, i) and self.at(j, i).color == BLACK:
+                    if self.at(j, i) and self.at(j, i).color() == BLACK:
                         if self.at(j, i).name() != KING:
                             self.valid_black_moves[(j, i)] = self.valid_blocking_moves((i, j), BLACK)
                         else:
@@ -227,7 +227,7 @@ class ChessBoard:
         elif color == WHITE:
             for i in range(len(self.board)):
                 for j in range(len(self.board[i])):
-                    if self.at(j, i) and self.at(j, i).color == WHITE:
+                    if self.at(j, i) and self.at(j, i).color() == WHITE:
                         if self.at(j, i).name() != KING:
                             self.valid_white_moves[(j, i)] = self.valid_blocking_moves((i, j), WHITE)
                         else:
@@ -241,7 +241,7 @@ class ChessBoard:
         elif color == BLACK:
             for i in range(len(self.board)):
                 for j in range(len(self.board[i])):
-                    if self.at(j, i) and self.at(j, i).color == BLACK:
+                    if self.at(j, i) and self.at(j, i).color() == BLACK:
                         if self.at(j, i).name() != KING:
                             self.valid_black_moves[(j, i)] = self.valid_blocking_moves((i, j), BLACK)
                         else:
@@ -280,9 +280,12 @@ class ChessBoard:
                 self.board[y][x] = None
 
             self.threefold_repetition_rule()
-            self.promote_pawn()
+            promotion_pos = self.pawn_promotion_pos(WHITE)
+            if promotion_pos != None:
+                self.emit('promote', promotion_pos)
             
-            if new_y == 0 and self.board[new_y][new_x].name() == PAWN and self.board[new_y][new_x].color == WHITE:
+            if new_y == 0 and self.board[new_y][new_x].name() == PAWN and self.board[new_y][new_x].color() == WHITE:
+                # the turn is not done until the player promotes
                 return
             self.invalid_white_king_moves, self.invalid_black_king_moves = [], []
             self.valid_white_moves, self.valid_black_moves = {}, {}
@@ -291,36 +294,44 @@ class ChessBoard:
             self.calculate_valid_moves()
             self.turn = WHITE if self.turn == BLACK else BLACK
             if self.turn == BLACK:
-                formated_board = self.get_formated_board()
-                formated_moves = self.get_formated_moves()
-                best_move = choose(formated_board, formated_moves)
-                if not best_move:
-                    self.emit('win', WHITE)
-                    self.calculate_invalid_king_moves()
-                    self.calculate_valid_moves()
-                    return
-                fromX, fromY, toX, toY = best_move
-                self.move_piece((fromX, fromY), (toX, toY))
-                if toY == len(self.board) - 1 and self.board[toY][toX].name() == PAWN:
-                    formated_board = self.get_formated_board()
-                    choices = [(0, 0, 0, -1), (0, 0, -1, 0), (0, -1, 0, 0), (-1, 0, 0, 0)]
-                    best_choice = choose(formated_board, choices)
-                    if best_choice[0] == -1:
-                        self.board[toY][toX] = Queen(BLACK, self)
-                    if best_choice[1] == -2:
-                        self.board[toY][toX] = Rook(BLACK, self)
-                    if best_choice[2] == -3:
-                        self.board[toY][toX] = Bishop(BLACK, self)
-                    if best_choice[3] == -4:
-                        self.board[toY][toX] = Knight(BLACK, self)
-                self.calculate_invalid_king_moves()
-                self.calculate_valid_moves()
+                self.play_ai_turn()
+
+    def play_ai_turn(self):
+        formated_board = self.get_formated_board()
+        formated_moves = self.get_formated_moves()
+        best_move = choose(formated_board, formated_moves)
+        if not best_move:
+            self.emit('win', WHITE)
+            self.calculate_invalid_king_moves()
+            self.calculate_valid_moves()
+            return
+        fromX, fromY, toX, toY = best_move
+        self.move_piece((fromX, fromY), (toX, toY))
+        promotion_pos = self.pawn_promotion_pos(BLACK)
+        if promotion_pos != None:
+            self.ai_promotion_choice(toX, toY)
+        self.calculate_invalid_king_moves()
+        self.calculate_valid_moves()
+
+    def ai_promotion_choice(self, toX, toY):
+            formated_board = self.get_formated_board()
+            choices = [(0, 0, 0, -1), (0, 0, -1, 0), (0, -1, 0, 0), (-1, 0, 0, 0)]
+            best_choice = choose(formated_board, choices)
+            if best_choice[0] == -1:
+                self.board[toY][toX] = Queen(BLACK, self)
+            if best_choice[1] == -2:
+                self.board[toY][toX] = Rook(BLACK, self)
+            if best_choice[2] == -3:
+                self.board[toY][toX] = Bishop(BLACK, self)
+            if best_choice[3] == -4:
+                self.board[toY][toX] = Knight(BLACK, self)
+
     def get_formated_board(self):
         formated_board = [[0] * 8 for _ in range(8)]
         for i in range(len(self.board)):
             for j in range(len(self.board[i])):
                 if self.board[i][j]:
-                    formated_board[i][j] = getMapping(self.board[i][j].name(), self.board[i][j].color)
+                    formated_board[i][j] = getMapping(self.board[i][j].name(), self.board[i][j].color())
         return formated_board
     def get_formated_moves(self):
         res = []
@@ -337,7 +348,7 @@ class ChessBoard:
         if color == WHITE:
             for i in range(len(self.board)):
                 for j in range(len(self.board[i])):
-                    if self.at(j, i) and self.at(j, i).color == BLACK and self.white_king in self.at(j, i).get_valid_moves((j, i)):
+                    if self.at(j, i) and self.at(j, i).color() == BLACK and self.white_king in self.at(j, i).get_valid_moves((j, i)):
                         checked_by += 1
             valid_moves = []
             for x, y, p in piece.get_valid_moves((j1, i1)):
@@ -348,7 +359,7 @@ class ChessBoard:
                     temp_checked_by = 0
                     for k in range(len(self.board)):
                         for l in range(len(self.board[k])):
-                            if self.board[k][l] and self.board[k][l].color == BLACK:
+                            if self.board[k][l] and self.board[k][l].color() == BLACK:
                                 opp_piece = self.at(l, k)
                                 for x2, y2, _ in opp_piece.get_valid_moves((l, k)):
                                     if self.white_king == (x2, y2):
@@ -362,7 +373,7 @@ class ChessBoard:
         elif color == BLACK:
             for i in range(len(self.board)):
                 for j in range(len(self.board[i])):
-                    if self.at(j, i) and self.at(j, i).color == WHITE and self.black_king in self.at(j, i).get_valid_moves((j, i)):
+                    if self.at(j, i) and self.at(j, i).color() == WHITE and self.black_king in self.at(j, i).get_valid_moves((j, i)):
                         checked_by += 1
             valid_moves = []
             for x, y, p in piece.get_valid_moves((j1, i1)):
@@ -373,7 +384,7 @@ class ChessBoard:
                     temp_checked_by = 0
                     for k in range(len(self.board)):
                         for l in range(len(self.board[k])):
-                            if self.board[k][l] and self.board[k][l].color == WHITE:
+                            if self.board[k][l] and self.board[k][l].color() == WHITE:
                                 opp_piece = self.at(l, k)
                                 for x2, y2, _ in opp_piece.get_valid_moves((l, k)):
                                     if self.black_king == (x2, y2):
@@ -386,15 +397,15 @@ class ChessBoard:
                     self.board[i1][j1] = piece
         return valid_moves
     
-    def promote_pawn(self):
+    def pawn_promotion_pos(self, color):
         for i in range(len(self.board)):
             for j in range(len(self.board[i])):
-                if self.at(j, i) and self.at(j, i).name() == PAWN:
-                    if self.at(j, i).color == BLACK and i == 7:
-                        self.emit('promote', BLACK, (j, i))
+                if (self.at(j, i) and
+                    i == (0 if color == WHITE else len(self.board) - 1) and
+                    self.at(j, i).name() == PAWN and self.at(j, i).color() == color):
 
-                    elif self.at(j, i).color == WHITE and i == 0:
-                        self.emit('promote', WHITE, (j, i))
+                    return (j, i)
+        return None
 
     def at(self, x, y):
         if 0 <= y < len(self.board) and 0 <= x < len(self.board[0]): 
@@ -422,7 +433,7 @@ class ChessBoard:
 class Piece:
     def __init__(self, color, board):
         self.chessboard = board
-        self.color = color
+        self.colour = color
 
     def is_valid_move(self, curr_pos, new_pos):      
         valid_moves = self.get_cached_valid_moves(curr_pos)
@@ -432,13 +443,14 @@ class Piece:
         return False
     
     def get_cached_valid_moves(self, pos):
-        if self.color == WHITE and len(self.chessboard.valid_white_moves) != 0:
+        if self.color() == WHITE and len(self.chessboard.valid_white_moves) != 0:
             return self.chessboard.valid_white_moves[pos]
-        elif self.color == BLACK and len(self.chessboard.valid_black_moves) != 0:
+        elif self.color() == BLACK and len(self.chessboard.valid_black_moves) != 0:
             return self.chessboard.valid_black_moves[pos]
         else:
             return self.get_valid_moves(pos)
-
+    def color(self):
+        return self.colour
     def get_valid_moves(self, pos):
         pass
 
@@ -464,7 +476,7 @@ class Pawn(Piece):
     def get_valid_moves(self, pos):
         x, y = pos
         movements = []
-        m = 1 if self.color == BLACK else -1
+        m = 1 if self.color() == BLACK else -1
         for i in range(1, 2 + (not self.has_moved)):
             if not self.in_bound(x, y + i * m) or self.chessboard.at(x, y + i * m):
                 break
@@ -472,7 +484,7 @@ class Pawn(Piece):
         for i in [-1, 1]:
             if self.in_bound(x + i, y + 1):
                 piece = self.chessboard.at(x + i, y + 1 * m)
-                if piece and piece.color != self.color:
+                if piece and piece.color() != self.color():
                     movements.append((x + i, y + 1 * m, 1))
         return movements
     
@@ -487,7 +499,7 @@ class Bishop(Piece):
                 ny, nx = y + (i * dy) , x + (i * dx)
                 if not self.in_bound(ny, nx):
                     break
-                if self.chessboard.board[ny][nx] and self.chessboard.board[ny][nx].color != self.color:
+                if self.chessboard.board[ny][nx] and self.chessboard.board[ny][nx].color() != self.color():
                     movements.append((nx, ny, 1))
                     if self.chessboard.board[ny][nx].name() == KING:
                         for i in range(i + 1, 8):
@@ -496,7 +508,7 @@ class Bishop(Piece):
                                 break
                             movements.append((nx, ny, -1))
                     break
-                elif self.chessboard.board[ny][nx] and self.chessboard.board[ny][nx].color == self.color:
+                elif self.chessboard.board[ny][nx] and self.chessboard.board[ny][nx].color() == self.color():
                     movements.append((nx, ny, -1))
                     break
                 else:
@@ -515,7 +527,7 @@ class Knight(Piece):
             if self.in_bound(nx, ny):
                 if self.chessboard.board[ny][nx] == None:
                     movements.append((nx, ny, 0))
-                elif self.chessboard.board[ny][nx].color != self.color:
+                elif self.chessboard.board[ny][nx].color() != self.color():
                     movements.append((nx, ny, 1))
                 else:
                     movements.append((nx, ny, -1))
@@ -542,7 +554,7 @@ class Rook(Piece):
             for j in range(start, end, step):
                 nx = j if i <= 1 else x
                 ny = j if i > 1 else y
-                if self.chessboard.at(nx, ny) and self.chessboard.at(nx, ny).color != self.color:
+                if self.chessboard.at(nx, ny) and self.chessboard.at(nx, ny).color() != self.color():
                     movements.append((nx, ny, 1))
                     if self.chessboard.at(nx, ny).name() == KING:
                         nx = j + step if i <= 1 else x
@@ -556,7 +568,7 @@ class Rook(Piece):
                             else:
                                 ny += step
                     break
-                elif self.chessboard.at(nx, ny) and self.chessboard.at(nx, ny).color == self.color:
+                elif self.chessboard.at(nx, ny) and self.chessboard.at(nx, ny).color() == self.color():
                     movements.append((nx, ny, -1))
                     break
                 else:
@@ -573,7 +585,7 @@ class Queen(Piece):
             for j in range(start, end, step):
                 nx = j if i <= 1 else x
                 ny = j if i > 1 else y
-                if self.chessboard.at(nx, ny) and self.chessboard.at(nx, ny).color != self.color:
+                if self.chessboard.at(nx, ny) and self.chessboard.at(nx, ny).color() != self.color():
                     movements.append((nx, ny, 1))
                     if self.chessboard.at(nx, ny) == KING:
                         nx = j + 1 if i <= 1 else x
@@ -587,7 +599,7 @@ class Queen(Piece):
                             else:
                                 ny += step
                     break
-                elif self.chessboard.at(nx, ny) and self.chessboard.at(nx, ny).color == self.color:
+                elif self.chessboard.at(nx, ny) and self.chessboard.at(nx, ny).color() == self.color():
                     movements.append((nx, ny, -1))
                     break
                 else:
@@ -597,7 +609,7 @@ class Queen(Piece):
                 ny, nx = y + (i * dy) , x + (i * dx)
                 if not self.in_bound(ny, nx):
                     break
-                if self.chessboard.at(nx, ny) and self.chessboard.at(nx, ny).color != self.color:
+                if self.chessboard.at(nx, ny) and self.chessboard.at(nx, ny).color() != self.color():
                     movements.append((nx, ny, 1))
                     if self.chessboard.at(nx, ny).name() == KING:
                         for i in range(i + 1, 8):
@@ -606,7 +618,7 @@ class Queen(Piece):
                                 break
                             movements.append((nx, ny, -1))
                     break
-                elif self.chessboard.board[ny][nx] and self.chessboard.board[ny][nx].color == self.color:
+                elif self.chessboard.board[ny][nx] and self.chessboard.board[ny][nx].color() == self.color():
                     movements.append((nx, ny, -1))
                     break
                 else:
@@ -633,7 +645,7 @@ class King(Piece):
         movements = []
         for nx, ny in [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1), (x + 1, y + 1), (x - 1, y - 1), (x + 1, y - 1), (x - 1, y + 1)]:
             if self.in_bound(nx, ny):
-                if self.chessboard.at(nx, ny) and self.chessboard.at(nx, ny).color != self.color:
+                if self.chessboard.at(nx, ny) and self.chessboard.at(nx, ny).color() != self.color():
                     movements.append((nx, ny, 1))
                 elif self.chessboard.at(nx, ny) == None:
                     movements.append((nx, ny, 0))
@@ -645,7 +657,7 @@ class King(Piece):
                 if self.chessboard.at(nx, y):
                     if (nx == len(self.chessboard.board) - 1
                         and self.chessboard.at(nx, y).name() == ROOK
-                        and self.chessboard.at(nx, y).color == self.color
+                        and self.chessboard.at(nx, y).color() == self.color()
                         and self.chessboard.at(nx, y).has_moved == False
                         and self.in_bound(x + 2, y)
                         and self.chessboard.at(x + 2, y) == None
@@ -655,7 +667,7 @@ class King(Piece):
 
                     if (nx == 0
                         and self.chessboard.at(nx, y).name() == ROOK
-                        and self.chessboard.at(nx, y).color == self.color
+                        and self.chessboard.at(nx, y).color() == self.color()
                         and self.chessboard.at(nx, y).has_moved == False
                         and self.in_bound(x - 2, y)
                         and self.chessboard.at(x - 3, y) == None
@@ -672,9 +684,9 @@ class King(Piece):
     def is_checked(self, movements, pos):
         j, i = pos
         invalid_moves = []
-        if self.color == WHITE:
+        if self.color() == WHITE:
             invalid_moves = self.chessboard.invalid_white_king_moves
-        elif self.color == BLACK:
+        elif self.color() == BLACK:
             invalid_moves = self.chessboard.invalid_black_king_moves
 
         if (j + 1, i) in invalid_moves:

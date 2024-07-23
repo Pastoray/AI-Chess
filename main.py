@@ -64,42 +64,20 @@ def draw_promotion_options(pos):
 
 promotion_in_progress = False
 promotion_pos = None
-promotion_color = None
-def promote_pawn(color, pos):
-    global change, promotion_in_progress, promotion_pos, promotion_color
-    change = True
-    if color == WHITE:
-        promotion_in_progress = True
-        promotion_pos = pos
-        promotion_color = color
 
-def handle_promotion(x, y, color):
-    global change, promotion_in_progress, promotion_pos, promotion_color
+def promote_pawn(pos):
+    global change, promotion_in_progress, promotion_pos
+    change = True
+    promotion_in_progress = True
+    promotion_pos = pos
+
+def handle_promotion(x, y):
+    global change, promotion_in_progress, promotion_pos
     mouse_pos = pg.mouse.get_pos()
     x2 = mouse_pos[0] // TILE
     y2 = mouse_pos[1] // TILE
-    if color == BLACK and x == x2 and y <= y2 <= y - 3:
-        if y2 == y - 3:
-            chessboard.board[y][x] = Knight(BLACK, chessboard)
-            chessboard.play_sound((y, x))
-        elif y2 == y - 2:
-            chessboard.board[y][x] = Bishop(BLACK, chessboard)
-            chessboard.play_sound((y, x))
-        elif y2 == y - 1:
-            chessboard.board[y][x] = Rook(BLACK, chessboard)
-            chessboard.play_sound((y, x))
-        elif y2 == y:
-            chessboard.board[y][x] = Queen(BLACK, chessboard)
-            chessboard.play_sound((y, x))
-        pg.mouse.set_cursor(pg.SYSTEM_CURSOR_ARROW)
-        chessboard.valid_black_moves[(x, y)] = chessboard.at(x, y).get_valid_moves((x, y))
-        for x, y, _ in chessboard.valid_black_moves[(x, y)]:
-            chessboard.invalid_white_king_moves.append((x, y))
-        x, y = chessboard.white_king
-        chessboard.valid_white_moves[(x, y)] = chessboard.at(x, y).get_valid_moves((x, y))
-        chessboard.calculate_valid_moves(WHITE)
 
-    elif color == WHITE and x == x2 and y <= y2 <= y + 3:
+    if x == x2 and y <= y2 <= y + 3:
         if y2 == y + 3:
             chessboard.board[y][x] = Knight(WHITE, chessboard)
             chessboard.play_sound((y, x))
@@ -123,7 +101,6 @@ def handle_promotion(x, y, color):
         return False
     promotion_in_progress = False
     promotion_pos = None
-    promotion_color = None
     change = True
     return True
 
@@ -156,7 +133,7 @@ def draw_pieces():
             if piece:
                 x = j * TILE
                 y = i * TILE
-                image_path = load_image_path(piece.name(), piece.color)
+                image_path = load_image_path(piece.name(), piece.color())
                 image = pg.image.load(image_path)
                 screen.blit(image, (x, y))
 
@@ -180,7 +157,7 @@ def main():
                     y = mouse_pos[1] // TILE
                     if promotion_in_progress:
                         saved_prom_pos = promotion_pos
-                        if handle_promotion(*promotion_pos, promotion_color):
+                        if handle_promotion(*promotion_pos):
                             chessboard.recv(saved_prom_pos)
                     else:
                         if selected_piece_pos:
@@ -196,8 +173,7 @@ def main():
             draw()
             change = False
         if promotion_in_progress:
-            if promotion_color != BLACK:
-                draw_promotion_options(promotion_pos)
+            draw_promotion_options(promotion_pos)
         pg.display.update()
         clock.tick(FPS)
 
